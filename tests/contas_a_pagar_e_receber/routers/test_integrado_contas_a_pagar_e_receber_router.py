@@ -88,6 +88,7 @@ def test_deve_retornar_erro_caso_o_valor_seja_menor_que_0():
     })
 
     assert response.status_code == 422
+    assert response.json()['detail'][0]['loc'] == ['body', 'valor']
 
 def test_deve_retornar_erro_caso_o_tipo_seja_diferente_de_PAGAR_ou_RECEBER():
     response = client.post('/contas-a-pagar-e-receber', json={
@@ -97,6 +98,7 @@ def test_deve_retornar_erro_caso_o_tipo_seja_diferente_de_PAGAR_ou_RECEBER():
     })
 
     assert response.status_code == 422
+    assert response.json()['detail'][0]['loc'] == ["body", "tipo"]
 
 def test_deve_retornar_erro_quando_a_descricao_for_menor_que_3_e_maior_que_30():
     response1 = client.post('/contas-a-pagar-e-receber', json={
@@ -113,4 +115,5 @@ def test_deve_retornar_erro_quando_a_descricao_for_menor_que_3_e_maior_que_30():
 
     assert response1.status_code == 422
     assert response2.status_code == 422
+    assert response1.json()['detail'][0]['loc'] == ['body', 'descricao']
 
