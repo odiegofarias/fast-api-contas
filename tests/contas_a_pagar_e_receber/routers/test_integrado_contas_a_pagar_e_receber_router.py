@@ -78,5 +78,32 @@ def test_deve_retornar_erro_quando_exceder_a_descricao():
         "tipo": "PAGAR"
     })
 
-    assert response.status_code == 500
+    assert response.status_code == 422
+
+def test_deve_retornar_erro_caso_o_valor_seja_menor_que_0():
+    response = client.post('/contas-a-pagar-e-receber', json={
+        "descricao": "Curso de Python",
+        "valor": -1,
+        "tipo": "PAGAR"
+    })
+
+    assert response.status_code == 422
+
+def test_deve_retornar_erro_caso_o_tipo_seja_diferente_de_PAGAR_ou_RECEBER():
+    response = client.post('/contas-a-pagar-e-receber', json={
+        "descricao": "Curso de Python",
+        "valor": 300.00,
+        "tipo": "pg"
+    })
+
+    assert response.status_code == 422
+
+def test_deve_retornar_erro_quando_a_descricao_for_menor_que_3_e_maior_que_30():
+    response = client.post('/contas-a-pagar-e-receber', json={
+        "descricao": "Curso de Python e outras coisas para exceder o limite de caract",
+        "valor": 300.00,
+        "tipo": "PAGAR"
+    })
+
+    assert response.status_code == 422
 
