@@ -99,11 +99,18 @@ def test_deve_retornar_erro_caso_o_tipo_seja_diferente_de_PAGAR_ou_RECEBER():
     assert response.status_code == 422
 
 def test_deve_retornar_erro_quando_a_descricao_for_menor_que_3_e_maior_que_30():
-    response = client.post('/contas-a-pagar-e-receber', json={
+    response1 = client.post('/contas-a-pagar-e-receber', json={
+        "descricao": "cu",
+        "valor": 300.00,
+        "tipo": "PAGAR"
+    })
+
+    response2 = client.post('/contas-a-pagar-e-receber', json={
         "descricao": "Curso de Python e outras coisas para exceder o limite de caract",
         "valor": 300.00,
         "tipo": "PAGAR"
     })
 
-    assert response.status_code == 422
+    assert response1.status_code == 422
+    assert response2.status_code == 422
 
