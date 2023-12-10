@@ -117,3 +117,29 @@ def test_deve_retornar_erro_quando_a_descricao_for_menor_que_3_e_maior_que_30():
     assert response2.status_code == 422
     assert response1.json()['detail'][0]['loc'] == ['body', 'descricao']
 
+
+# Teste PUT
+def test_deve_atualizar_conta_a_pagar_e_receber():
+    Base.metadata.drop_all(bind=engine),
+    Base.metadata.create_all(bind=engine),
+
+    nova_conta = {
+        "descricao": "Curso de Python",
+        "valor": 1350.99,
+        "tipo": "PAGAR"
+    }
+
+    response = client.post('/contas-a-pagar-e-receber', json=nova_conta)
+
+    id_conta_a_pagar_e_receber = response.json()['id']
+
+    response_put = client.put(f'/contas-a-pagar-e-receber/{id_conta_a_pagar_e_receber}', json={
+        "descricao": "Curso de FastAPI",
+        "valor": 350.99,
+        "tipo": "PAGAR"
+    })
+
+    assert response_put.status_code == 200
+    assert response_put.json()['descricao'] == 'Curso de FastAPI'
+
+

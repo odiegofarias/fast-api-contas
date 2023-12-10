@@ -48,3 +48,19 @@ def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: S
     db.refresh(contas_a_pagar_e_receber)
     
     return contas_a_pagar_e_receber
+
+
+@router.put('/{id}', response_model=ContaPagarReceberResponse, status_code=200)
+def edita_conta(id: int,
+    conta_a_pagar_e_receber_request: ContaPagarReceberRequest,
+    db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
+    conta_a_pagar_e_receber: ContaPagarReceber = db.query(ContaPagarReceber).get(id)
+    conta_a_pagar_e_receber.tipo = conta_a_pagar_e_receber_request.tipo
+    conta_a_pagar_e_receber.valor = conta_a_pagar_e_receber_request.valor
+    conta_a_pagar_e_receber.descricao = conta_a_pagar_e_receber_request.descricao
+
+    db.add(conta_a_pagar_e_receber)
+    db.commit()
+    db.refresh(conta_a_pagar_e_receber)
+
+    return conta_a_pagar_e_receber
