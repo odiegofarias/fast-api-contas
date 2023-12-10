@@ -31,17 +31,24 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 
-# def test_deve_listar_contas_a_pagar_e_receber():
-#     Base.metadata.drop_all(bind=engine),
-#     Base.metadata.create_all(bind=engine),
+def test_deve_listar_contas_a_pagar_e_receber():
+    Base.metadata.drop_all(bind=engine),
+    Base.metadata.create_all(bind=engine),
 
-#     response = client.get('/contas-a-pagar-e-receber')
+    client.post('/contas-a-pagar-e-receber',
+        json={'descricao': 'Aluguel', 'valor': 1000.5, 'tipo': 'PAGAR'}
+    )
+    client.post('/contas-a-pagar-e-receber', 
+        json={'descricao': 'Salário', 'valor': 3000.00, 'tipo': 'RECEBER'}
+    )
 
-#     assert response.status_code == 200
-#     assert response.json() == [
-#         {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5', 'tipo': 'PAGAR'},
-#         {'id': 2, 'descricao': 'Salário', 'valor': '5000', 'tipo': 'RECEBER'}
-#     ]
+    response = client.get('/contas-a-pagar-e-receber')
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5000000000', 'tipo': 'PAGAR'},
+        {'id': 2, 'descricao': 'Salário', 'valor': '3000.0000000000', 'tipo': 'RECEBER'}
+    ]
 
 def test_deve_criar_conta_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine),
@@ -58,11 +65,18 @@ def test_deve_criar_conta_a_pagar_e_receber():
     nova_conta_copy['id'] = 1
 
     response = client.post('/contas-a-pagar-e-receber', json=nova_conta)
-    print(response.json())
-  
     valor = response.json()['valor']
     valor = valor[:-8]
 
     assert response.status_code == 201
     assert response.json()['id'] == 1
+
+def test_deve_retornar_erro_quando_exceder_a_descricao():
+    response = client.post('/contas-a-pagar-e-receber', json={
+        "descricao": "Curso de Python e outra qualquer coisa para testar o tamanho da descricao",
+        "valor": 1350.99,
+        "tipo": "PAGAR"
+    })
+
+    assert response.status_code == 500
 

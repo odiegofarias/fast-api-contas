@@ -1,0 +1,6 @@
+[tool.taskipy.tasks]
+
+run = 'uvicorn main:app --reload'
+test = 'python -m pytest -vv -rP'
+post_test = 'coverage html'
+amb = 'env\scripts\activate'
