@@ -18,7 +18,7 @@ class ContaPagarReceberResponse(BaseModel):
     tipo: str # PAGAR e RECEBER
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ContaPagarReceberRequest(BaseModel):
