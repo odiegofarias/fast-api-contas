@@ -156,6 +156,19 @@ def test_deve_atualizar_conta_a_pagar_e_receber():
     assert response_put.json()['valor'] == '350.9900000000'
     assert response_put.json()['tipo'] == 'PAGAR'
 
+def test_deve_retornar_nao_encontrado_para_id_nao_existente_no_update():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response_put = client.put(f'/contas-a-pagar-e-receber/999', json={
+        "descricao": "Curso de FastAPI",
+        "valor": 350.99,
+        "tipo": "PAGAR"
+    })
+
+    assert response_put.status_code == 404
+    assert response_put.json() == {'message': 'Oops! Conta a pagar e receber não encontrado(a).'}
+
 def test_deve_remover_conta_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -175,6 +188,15 @@ def test_deve_remover_conta_a_pagar_e_receber():
     response_get = client.get('/contas-a-pagar-e-receber')
     assert response_delete.status_code == 204
     assert len(response_get.json()) == 0
+
+def test_deve_retornar_nao_encontrado_para_id_nao_existente_no_delete():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.delete(f'/contas-a-pagar-e-receber/99999')
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Conta a pagar e receber não encontrado(a).'}
 
 def test_deve_retornar_a_conta_especificada_pelo_id():
     Base.metadata.drop_all(bind=engine)
@@ -197,6 +219,17 @@ def test_deve_retornar_a_conta_especificada_pelo_id():
     assert response_get.json()['descricao'] == 'Curso de FastAPI'
     assert response_get.json()['valor'] == '599.9900000000'
     assert response_get.json()['tipo'] == 'PAGAR'
+
+def test_deve_retornar_nao_encontrado_para_id_nao_existente():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+
+    response = client.get(f'/contas-a-pagar-e-receber/99999')
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Conta a pagar e receber não encontrado(a).'}
+
     
 
 
