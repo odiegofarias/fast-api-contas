@@ -36,6 +36,12 @@ class ContaPagarReceberRequest(BaseModel):
 def listar_contas(db: Session = Depends(get_db), skip: int = 0, limit: int = 100) -> List[ContaPagarReceberResponse]:
     return db.query(ContaPagarReceber).offset(skip).limit(limit).all()
 
+@router.get('/{id}', response_model = ContaPagarReceberResponse)
+def lista_conta(id: int, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
+    conta: ContaPagarReceber = db.query(ContaPagarReceber).get(id)
+
+    return conta
+
 
 @router.post('', response_model=ContaPagarReceberResponse, status_code=201)
 def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
@@ -64,3 +70,14 @@ def edita_conta(id: int,
     db.refresh(conta_a_pagar_e_receber)
 
     return conta_a_pagar_e_receber
+
+
+@router.delete('/{id}', status_code=204)
+def exlui_conta(id: int, db: Session = Depends(get_db)) -> None:
+    conta: ContaPagarReceber = db.query(ContaPagarReceber).get(id)
+
+    db.delete(conta)
+    db.commit()
+
+
+    
