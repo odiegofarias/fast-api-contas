@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from contas_a_pagar_e_receber.routers import contas_a_pagar_e_receber_router
 from shared.exceptions import NotFound
+from shared.exceptions_handler import not_found_exception_handler
 
 
 app = FastAPI()
@@ -13,11 +13,5 @@ def root() -> str:
 
 
 app.include_router(contas_a_pagar_e_receber_router.router)
+app.add_exception_handler(NotFound, not_found_exception_handler)
 
-
-@app.exception_handler(NotFound)
-async def unicorn_exception_handler(request: Request, exc: NotFound):
-    return JSONResponse(
-        status_code=404,
-        content={"message": f"Oops! {exc.name} não encontrado(a)."},
-    )
