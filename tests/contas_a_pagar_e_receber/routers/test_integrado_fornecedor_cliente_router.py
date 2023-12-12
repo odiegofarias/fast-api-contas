@@ -96,4 +96,20 @@ def test_deve_remover_fornecedor_cliente():
     response_get = client.get('/fornecedor-cliente')
     assert response_delete.status_code == 204
     assert response_get.json() == []
-    
+
+
+def test_exibe_detalhe_do_funcionario_cliente():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    data_json = {'nome': 'TESTE'}
+
+    response_post = client.post('/fornecedor-cliente', json=data_json)
+
+    id_fornecedor_cliente = response_post.json()['id']
+
+    response_get = client.get(f'/fornecedor-cliente/{id_fornecedor_cliente}')
+
+    assert response_get.status_code == 200
+    assert response_get.json()['nome'] == 'TESTE'
+    assert response_get.json() == {'id': 1, 'nome': 'TESTE'}

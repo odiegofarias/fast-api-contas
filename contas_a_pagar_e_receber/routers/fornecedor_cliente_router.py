@@ -28,6 +28,10 @@ class FornecedorClienteRequest(BaseModel):
 def listar_fornecedor_cliente(db: Session = Depends(get_db), skip: int = 0, limit: int = 100) -> List[FornecedorClienteResponse]:
     return db.query(FornecedorCliente).offset(skip).limit(limit).all()
 
+@router.get('/{id}', response_model=FornecedorClienteResponse, status_code=200)
+def detalhe_fornecedor_cliente(id: int, db: Session = Depends(get_db)) -> FornecedorClienteResponse:
+    return busca_fornecedor_cliente_por_id(id, db)
+
 @router.post('', response_model=FornecedorClienteResponse, status_code=201)
 def criar_fornecedor_cliente(fornecedor_cliente_request: FornecedorClienteRequest, db: Session = Depends(get_db)) -> FornecedorClienteResponse:
     fornecedor_cliente = FornecedorCliente(
@@ -54,17 +58,17 @@ def atualiza_fornecedor_cliente(
 
     return fornecedor_cliente
 
-def busca_fornecedor_cliente_por_id(id_fornecedor_cliente: int, db: Session):
-    fornecedor_cliente: FornecedorCliente = db.query(FornecedorCliente).get(id_fornecedor_cliente)
-
-    if fornecedor_cliente is None:
-        raise NotFound('Fornecedor/cliente')
-    
-    return fornecedor_cliente
-
 @router.delete('/{id}', status_code=204)
 def exclui_fornecedor_cliente(id: int, db: Session = Depends(get_db)) -> None:
     fornecedor_cliente = busca_fornecedor_cliente_por_id(id, db)
 
     db.delete(fornecedor_cliente)
     db.commit()
+
+def busca_fornecedor_cliente_por_id(id_fornecedor_cliente: int, db: Session):
+    fornecedor_cliente: FornecedorCliente = db.query(FornecedorCliente).get(id_fornecedor_cliente)
+
+    if fornecedor_cliente is None:
+        raise NotFound('Fornecedor-cliente')
+    
+    return fornecedor_cliente
