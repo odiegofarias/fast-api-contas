@@ -113,3 +113,44 @@ def test_exibe_detalhe_do_funcionario_cliente():
     assert response_get.status_code == 200
     assert response_get.json()['nome'] == 'TESTE'
     assert response_get.json() == {'id': 1, 'nome': 'TESTE'}
+
+def test_deve_retornar_erro_quando_o_nome_for_menor_que_3_ou_maior_que_255():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response_post1 = client.post('/fornecedor-cliente', json={'nome': 'cu'})
+
+    data_json_maior_que_255 = 60 * 'teste'
+    response_post2 = client.post('/fornecedor-cliente', json={'nome': data_json_maior_que_255})
+
+    assert response_post1.status_code == 422
+    assert response_post2.status_code == 422
+    assert response_post1.json()['detail'][0]['msg'] == 'String should have at least 3 characters'
+    assert response_post2.json()['detail'][0]['msg'] == 'String should have at most 255 characters'
+
+def test_deve_retornar_nao_encontrado_para_id_inexistente_no_get_detail():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.get('/fornecedor-cliente/999')
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Fornecedor-cliente não encontrado(a).'}
+
+def test_deve_retornar_nao_encontrado_para_id_inexistente_no_put():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.put('/fornecedor-cliente/999', json={'nome': 'TESTE_PUT'})
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Fornecedor-cliente não encontrado(a).'}
+
+def test_deve_retornar_nao_encontrado_para_id_inexistente_no_delete():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    response = client.delete('/fornecedor-cliente/999')
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Fornecedor-cliente não encontrado(a).'}
