@@ -33,13 +33,17 @@ def test_deve_criar_funcionario_cliente():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
-    response = client.post('/fornecedor-cliente', json={
-        'nome': 'CELPE'
-    })
+    novo_fornecedor_cliente = {
+        "nome": "CELPE"
+    }    
+    
+    novo_fornecedor_cliente_copy = novo_fornecedor_cliente.copy()
+    novo_fornecedor_cliente_copy['id'] = 1
+
+    response = client.post('/fornecedor-cliente', json=novo_fornecedor_cliente)
 
     assert response.status_code == 201
-    assert response.json()['id'] == 1
-    assert response.json() == {'id': 1, 'nome': 'CELPE'}
+    assert response.json() == novo_fornecedor_cliente_copy
 
 def test_deve_listar_fornecedores_clientes():
     Base.metadata.drop_all(bind=engine)
@@ -92,9 +96,11 @@ def test_deve_remover_fornecedor_cliente():
     id_fornecedor_cliente = response_post.json()['id']
 
     response_delete = client.delete(f'/fornecedor-cliente/{id_fornecedor_cliente}')
-
-    response_get = client.get('/fornecedor-cliente')
+    
     assert response_delete.status_code == 204
+    
+    response_get = client.get('/fornecedor-cliente')
+ 
     assert response_get.json() == []
 
 
