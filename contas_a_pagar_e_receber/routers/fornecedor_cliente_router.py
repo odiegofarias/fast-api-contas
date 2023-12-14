@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from typing import List
+from contas_a_pagar_e_receber.models.contas_pagar_receber_models import ContaPagarReceber
 from contas_a_pagar_e_receber.models.fornecedor_cliente_model import FornecedorCliente
 
 from sqlalchemy.orm import Session

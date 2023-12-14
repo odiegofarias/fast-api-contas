@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from contas_a_pagar_e_receber.models.contas_pagar_receber_models import ContaPagarReceber
-from contas_a_pagar_e_receber.routers.fornecedor_cliente_router import FornecedorClienteResponse
+from contas_a_pagar_e_receber.routers.fornecedor_cliente_router import FornecedorClienteResponse, busca_fornecedor_cliente_por_id
 
 from shared.dependencies import get_db
 from shared.exceptions import NotFound
@@ -48,10 +48,14 @@ def lista_conta(id: int, db: Session = Depends(get_db)) -> ContaPagarReceberResp
 
 @router.post('', response_model=ContaPagarReceberResponse, status_code=201)
 def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
+    
+    busca_fornecedor_cliente_por_id(conta_a_pagar_e_receber_request.fornecedor_cliente_id, db)
+    
     contas_a_pagar_e_receber = ContaPagarReceber(
         **conta_a_pagar_e_receber_request.model_dump()
     )
 
+    
     db.add(contas_a_pagar_e_receber)
     db.commit()
     db.refresh(contas_a_pagar_e_receber)
@@ -67,6 +71,7 @@ def edita_conta(id: int,
     conta_a_pagar_e_receber.tipo = conta_a_pagar_e_receber_request.tipo
     conta_a_pagar_e_receber.valor = conta_a_pagar_e_receber_request.valor
     conta_a_pagar_e_receber.descricao = conta_a_pagar_e_receber_request.descricao
+    conta_a_pagar_e_receber.fornecedor = conta_a_pagar_e_receber.fornecedor
 
     db.add(conta_a_pagar_e_receber)
     db.commit()
