@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from contas_a_pagar_e_receber.models.contas_pagar_receber_models import ContaPagarReceber
+from contas_a_pagar_e_receber.routers.fornecedor_cliente_router import FornecedorClienteResponse
 
 from shared.dependencies import get_db
 from shared.exceptions import NotFound
@@ -17,7 +18,8 @@ class ContaPagarReceberResponse(BaseModel):
     id: int
     descricao: str
     valor: Decimal
-    tipo: str # PAGAR e RECEBER
+    tipo: str # PAGAR e RECEBER 
+    fornecedor: FornecedorClienteResponse | None = None
 
     class Config:
         from_attributes = True

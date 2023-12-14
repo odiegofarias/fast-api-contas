@@ -4,7 +4,6 @@ from typing import List
 from contas_a_pagar_e_receber.models.fornecedor_cliente_model import FornecedorCliente
 
 from sqlalchemy.orm import Session
-from contas_a_pagar_e_receber.routers.contas_a_pagar_e_receber_router import busca_conta_por_id
 
 from shared.dependencies import get_db
 from shared.exceptions import NotFound
