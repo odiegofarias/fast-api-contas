@@ -71,7 +71,7 @@ def edita_conta(id: int,
     conta_a_pagar_e_receber.tipo = conta_a_pagar_e_receber_request.tipo
     conta_a_pagar_e_receber.valor = conta_a_pagar_e_receber_request.valor
     conta_a_pagar_e_receber.descricao = conta_a_pagar_e_receber_request.descricao
-    conta_a_pagar_e_receber.fornecedor = conta_a_pagar_e_receber.fornecedor
+    conta_a_pagar_e_receber.fornecedor_cliente_id = conta_a_pagar_e_receber_request.fornecedor_cliente_id
 
     db.add(conta_a_pagar_e_receber)
     db.commit()
