@@ -35,29 +35,42 @@ def test_deve_listar_contas_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+    novo_fornecedor = {
+        "nome": "BBG TELECOM"
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor)
+
     client.post('/contas-a-pagar-e-receber',
-        json={'descricao': 'Aluguel', 'valor': 1000.5, 'tipo': 'PAGAR'}
+        json={'descricao': 'Aluguel', 'valor': 1000.5, 'tipo': 'PAGAR', 'fornecedor_cliente_id': 1}
     )
     client.post('/contas-a-pagar-e-receber', 
-        json={'descricao': 'Salário', 'valor': 3000.00, 'tipo': 'RECEBER'}
+        json={'descricao': 'Salário', 'valor': 3000.00, 'tipo': 'RECEBER', 'fornecedor_cliente_id': 1}
     )
 
     response = client.get('/contas-a-pagar-e-receber')
 
     assert response.status_code == 200
     assert response.json() == [
-        {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5000000000', 'tipo': 'PAGAR'},
-        {'id': 2, 'descricao': 'Salário', 'valor': '3000.0000000000', 'tipo': 'RECEBER'}
+        {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5000000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}},
+        {'id': 2, 'descricao': 'Salário', 'valor': '3000.0000000000', 'tipo': 'RECEBER', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}}
     ]
 
 def test_deve_criar_conta_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+    novo_fornecedor = {
+        "nome": "BBG TELECOM"
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor)
+
     nova_conta = {
         "descricao": "Curso de Python",
         "valor": 1350.99,
-        "tipo": "PAGAR"
+        "tipo": "PAGAR",
+        "fornecedor_cliente_id": 1
     }
 
     nova_conta['valor'] = str(nova_conta['valor'])
@@ -135,10 +148,17 @@ def test_deve_atualizar_conta_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+    novo_fornecedor = {
+        "nome": "BBG TELECOM"
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor)
+
     nova_conta = {
         "descricao": "Curso de Python",
         "valor": 1350.99,
-        "tipo": "PAGAR"
+        "tipo": "PAGAR",
+        "fornecedor_cliente_id": 1
     }
 
     response = client.post('/contas-a-pagar-e-receber', json=nova_conta)
@@ -173,10 +193,17 @@ def test_deve_remover_conta_a_pagar_e_receber():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+    novo_fornecedor = {
+        "nome": "BBG TELECOM"
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor)
+
     nova_conta = {
         "descricao": "Curso de Python",
         "valor": 1350.99,
-        "tipo": "PAGAR"
+        "tipo": "PAGAR",
+        "fornecedor_cliente_id": 1
     }
 
     response = client.post('/contas-a-pagar-e-receber', json=nova_conta)
@@ -202,10 +229,17 @@ def test_deve_retornar_a_conta_especificada_pelo_id():
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
 
+    novo_fornecedor = {
+        "nome": "BBG TELECOM"
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor)
+
     conta_json = {
         'descricao': 'Curso de FastAPI',
         'valor': 599.99,
-        'tipo': 'PAGAR'
+        'tipo': 'PAGAR',
+        'fornecedor_cliente_id': 1
     }
 
     response_post = client.post('/contas-a-pagar-e-receber', json=conta_json)
