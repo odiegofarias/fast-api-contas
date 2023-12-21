@@ -37,6 +37,7 @@ def criar_fornecedor_cliente(fornecedor_cliente_request: FornecedorClienteReques
     fornecedor_cliente = FornecedorCliente(
         **fornecedor_cliente_request.model_dump()
     )
+    #TODO: Criar verificação se o fornecedor_cliente existe no DB
 
     db.add(fornecedor_cliente)
     db.commit()

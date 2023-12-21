@@ -48,7 +48,6 @@ def lista_conta(id: int, db: Session = Depends(get_db)) -> ContaPagarReceberResp
 
 @router.post('', response_model=ContaPagarReceberResponse, status_code=201)
 def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
-    
     busca_fornecedor_cliente_por_id(conta_a_pagar_e_receber_request.fornecedor_cliente_id, db)
     
     contas_a_pagar_e_receber = ContaPagarReceber(

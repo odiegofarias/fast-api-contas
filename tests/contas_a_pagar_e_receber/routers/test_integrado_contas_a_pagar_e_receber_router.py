@@ -264,7 +264,23 @@ def test_deve_retornar_nao_encontrado_para_id_nao_existente():
     assert response.status_code == 404
     assert response.json() == {'message': 'Oops! Conta a pagar e receber não encontrado(a).'}
 
-    
+def test_deve_retornar_nao_encontrado_caso_id_do_fornecedor_nao_exista():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
+    nova_conta_com_fornecedor_inexistente = {
+        'descricao': 'Curso de FastAPI',
+        'valor': 599.99,
+        'tipo': 'PAGAR',
+        'fornecedor_cliente_id': 999
+    }
+
+    response = client.post(
+        '/contas-a-pagar-e-receber',
+        json=nova_conta_com_fornecedor_inexistente
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {'message': 'Oops! Fornecedor-cliente não encontrado(a).'}
 
 
