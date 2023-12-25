@@ -299,3 +299,45 @@ def test_deve_baixar_conta():
     assert response.status_code == 200
     assert response.json()['esta_baixada'] is True
     assert response.json()['valor'] == '599.9900000000'
+
+def test_deve_baixar_conta_modificada():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    client.post('/contas-a-pagar-e-receber', json={
+        'descricao': 'Curso de FastAPI',
+        'valor': 599.99,
+        'tipo': 'PAGAR',
+    })
+
+    client.put(f'/contas-a-pagar-e-receber/1', json={
+        "descricao": "Curso de FastAPI",
+        "valor": 350.99,
+        "tipo": "PAGAR"
+    })
+
+    response_action = client.post('/contas-a-pagar-e-receber/1/baixar')
+
+    assert response_action.status_code == 200
+    assert response_action.json()['esta_baixada'] is True
+    assert response_action.json()['valor'] == '350.9900000000'
+    assert response_action.json()['valor_baixa'] == '350.9900000000'
+
+def test_nao_baixa_conta_previamente_baixada():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    client.post('/contas-a-pagar-e-receber', json={
+        'descricao': 'Curso de FastAPI',
+        'valor': 599.99,
+        'tipo': 'PAGAR',
+    })
+
+    response = client.post('/contas-a-pagar-e-receber/1/baixar')
+    response_action = client.post('/contas-a-pagar-e-receber/1/baixar')
+
+    assert response_action.status_code == 200
+    assert response_action.json()['esta_baixada'] is True
+    assert response_action.json()['valor'] == '599.9900000000'
+    assert response_action.json()['valor_baixa'] == '599.9900000000'
+    assert response.json()['data_baixa'] == response_action.json()['data_baixa']
