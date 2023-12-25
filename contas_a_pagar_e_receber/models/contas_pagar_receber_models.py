@@ -1,5 +1,5 @@
 from shared.database import Base
-from sqlalchemy import Column, Integer, Numeric, String, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, Integer, Numeric, String, ForeignKey
 from sqlalchemy.orm import mapped_column, relationship
 
 
@@ -10,5 +10,9 @@ class ContaPagarReceber(Base):
     descricao = Column(String(40))
     valor = Column(Numeric)
     tipo = Column(String(10))
+    data_baixa = Column(DateTime())
+    valor_baixa = Column(Numeric)
+    esta_baixada = Column(Boolean, default=False)
+
     fornecedor_cliente_id = mapped_column(ForeignKey("fornecedor_cliente.id"))
     fornecedor = relationship("FornecedorCliente")

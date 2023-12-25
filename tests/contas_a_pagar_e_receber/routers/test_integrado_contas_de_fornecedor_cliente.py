@@ -74,10 +74,35 @@ def test_deve_retornar_as_contas_associadas_a_um_fornecedor_cliente():
     assert response_conta_3.status_code == 201
 
     assert response_get.json() == [
-            {'id': 1, 'descricao': 'Curso de Python', 'valor': '1350.9900000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}}, 
-            {'id': 2, 'descricao': 'Curso de FastAPI', 'valor': '459.9900000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}}
+            {'id': 1, 'descricao': 'Curso de Python', 'valor': '1350.9900000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}, 'data_baixa': None, 'valor_baixa': None, 'esta_baixada': False}, 
+            {'id': 2, 'descricao': 'Curso de FastAPI', 'valor': '459.9900000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}, 'data_baixa': None, 'valor_baixa': None, 'esta_baixada': False}
         ]
+    assert len(response_get.json()) == 2
     
+def test_deve_retornar_lita_vazia_pois_nao_tem_o_fornecedor_nao_tem_contas_vinculadas():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    novo_fornecedor_1 = {
+        'nome': 'BMW'
+    }
+
+    client.post('/fornecedor-cliente', json=novo_fornecedor_1)
+
+    nova_conta_1 = {
+        "descricao": "Curso de Python",
+        "valor": 1350.99,
+        "tipo": "PAGAR",
+        "fornecedor_cliente_id": 1
+    }
+
+    client.post('/contas-a-pagar-e-receber', json=nova_conta_1)
+
+    response = client.get('/fornecedor-cliente/2/contas-a-pagar-e-receber')
+
+    assert response.status_code == 200
+    assert response.json() == []
+
 
 
 

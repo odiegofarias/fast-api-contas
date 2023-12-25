@@ -1,10 +1,12 @@
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from contas_a_pagar_e_receber.models.contas_pagar_receber_models import ContaPagarReceber
+from contas_a_pagar_e_receber.models.fornecedor_cliente_model import FornecedorCliente
 from contas_a_pagar_e_receber.routers.fornecedor_cliente_router import FornecedorClienteResponse, busca_fornecedor_cliente_por_id
 
 from shared.dependencies import get_db
@@ -18,7 +20,10 @@ class ContaPagarReceberResponse(BaseModel):
     id: int
     descricao: str
     valor: Decimal
-    tipo: str # PAGAR e RECEBER 
+    tipo: str # PAGAR e RECEBER
+    data_baixa: datetime | None = None
+    valor_baixa: Decimal | None = None
+    esta_baixada: bool | None = None
     fornecedor: FornecedorClienteResponse | None = None
 
     class Config:
@@ -48,7 +53,7 @@ def lista_conta(id: int, db: Session = Depends(get_db)) -> ContaPagarReceberResp
 
 @router.post('', response_model=ContaPagarReceberResponse, status_code=201)
 def criar_conta(conta_a_pagar_e_receber_request: ContaPagarReceberRequest, db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
-    busca_fornecedor_cliente_por_id(conta_a_pagar_e_receber_request.fornecedor_cliente_id, db)
+    valida_fornecedor(conta_a_pagar_e_receber_request.fornecedor_cliente_id, db)
     
     contas_a_pagar_e_receber = ContaPagarReceber(
         **conta_a_pagar_e_receber_request.model_dump()
@@ -78,6 +83,24 @@ def edita_conta(id: int,
 
     return conta_a_pagar_e_receber
 
+@router.post('/{id}/baixar', response_model=ContaPagarReceberResponse, status_code=200)
+def baixa_conta(id: int,
+    db: Session = Depends(get_db)) -> ContaPagarReceberResponse:
+    conta_a_pagar_e_receber = busca_conta_por_id(id, db)
+
+    if conta_a_pagar_e_receber.esta_baixada and conta_a_pagar_e_receber.valor == conta_a_pagar_e_receber.valor_baixa:
+        return conta_a_pagar_e_receber
+        
+    conta_a_pagar_e_receber.data_baixa = datetime.now()
+    conta_a_pagar_e_receber.esta_baixada = True
+    conta_a_pagar_e_receber.valor_baixa = conta_a_pagar_e_receber.valor
+
+    db.add(conta_a_pagar_e_receber)
+    db.commit()
+    db.refresh(conta_a_pagar_e_receber)
+
+    return conta_a_pagar_e_receber
+
 
 @router.delete('/{id}', status_code=204)
 def exlui_conta(id: int, db: Session = Depends(get_db)) -> None:
@@ -95,3 +118,10 @@ def busca_conta_por_id(id_da_conta_a_pagar_e_receber: int, db: Session) -> Conta
 
 
     return conta_a_pagar_e_receber
+
+def valida_fornecedor(fornecedor_cliente_id, db: Session):
+    if fornecedor_cliente_id is not None:
+        conta_a_pagar_e_receber = db.query(FornecedorCliente).get(fornecedor_cliente_id)
+        if conta_a_pagar_e_receber is None:
+            raise HTTPException(status_code=422, detail="Fornecedor não cadastrado")
+        

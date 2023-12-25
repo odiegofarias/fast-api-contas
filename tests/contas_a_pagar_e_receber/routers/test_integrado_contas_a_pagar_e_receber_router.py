@@ -52,8 +52,8 @@ def test_deve_listar_contas_a_pagar_e_receber():
 
     assert response.status_code == 200
     assert response.json() == [
-        {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5000000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}},
-        {'id': 2, 'descricao': 'Salário', 'valor': '3000.0000000000', 'tipo': 'RECEBER', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}}
+        {'id': 1, 'descricao': 'Aluguel', 'valor': '1000.5000000000', 'tipo': 'PAGAR', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}, 'data_baixa': None, 'valor_baixa': None, 'esta_baixada': False},
+        {'id': 2, 'descricao': 'Salário', 'valor': '3000.0000000000', 'tipo': 'RECEBER', 'fornecedor': {'id': 1, 'nome': 'BBG TELECOM'}, 'data_baixa': None, 'valor_baixa': None, 'esta_baixada': False}
     ]
 
 def test_deve_criar_conta_a_pagar_e_receber():
@@ -280,7 +280,22 @@ def test_deve_retornar_nao_encontrado_caso_id_do_fornecedor_nao_exista():
         json=nova_conta_com_fornecedor_inexistente
     )
 
-    assert response.status_code == 404
-    assert response.json() == {'message': 'Oops! Fornecedor-cliente não encontrado(a).'}
+    assert response.status_code == 422
+    assert response.json() == {'detail': 'Fornecedor não cadastrado'}
 
 
+def test_deve_baixar_conta():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    client.post('/contas-a-pagar-e-receber', json={
+        'descricao': 'Curso de FastAPI',
+        'valor': 599.99,
+        'tipo': 'PAGAR',
+    })
+
+    response = client.post('/contas-a-pagar-e-receber/1/baixar')
+
+    assert response.status_code == 200
+    assert response.json()['esta_baixada'] is True
+    assert response.json()['valor'] == '599.9900000000'
